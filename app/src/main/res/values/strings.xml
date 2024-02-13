@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KallKaro</string>
+    <string name="hello">Ready to Dive In?</string>
+    <string name="create">Start Your Journey</string>
+    <string name="welcome">Welcome back!</string>
+    <string name="sign">Join us Again</string>
+    <string name="fname">First Name</string>
+    <string name="lname">Last Name</string>
+    <string name="eml">Email</string>
+    <string name="pswd">Password</string>
+    <string name="forgot">Forgot details? Let us help you \nregain access!</string>
+    <string name="TC">By continuing you accept our\nPrivacy Policy\nand\nTerms of Use</string>
+</resources>

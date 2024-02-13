@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "184604061072",
+    "project_id": "kallkaro",
+    "storage_bucket": "kallkaro.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184604061072:android:cccd5ca9ac4afdaeddd715",
+        "android_client_info": {
+          "package_name": "com.example.kallkaro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE6GCCIIDh_cdD54w50ADTDc_iI8hneaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
