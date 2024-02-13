@@ -7,7 +7,6 @@ KallKaro is an Android application that enables users to make audio and video ca
 - **Audio Calling:** Make high-quality audio calls to your contacts.
 - **Video Calling:** Enjoy crystal-clear video calls with friends and family.
 - **User Authentication:** Secure login and registration system to protect user accounts.
-- **Contacts Management:** Manage your contacts and easily find friends to connect with.
 - **Real-Time Communication:** Utilizes real-time communication protocols for low-latency audio and video transmission.
 - **Responsive UI:** User-friendly interface designed for smooth navigation and usage on various screen sizes.
 
