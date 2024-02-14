@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
@@ -64,6 +65,10 @@ import com.example.kallkaro.ui.theme.Purple40
 import com.example.kallkaro.ui.theme.bgcol
 import com.example.kallkaro.ui.theme.colorText
 import com.example.kallkaro.ui.theme.ng2
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.delay
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.launch
 
 @Composable
 fun NormalTextComponent (value: String) {
@@ -226,7 +231,7 @@ fun RegButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit, f
 @Composable
 fun LogButton () {
     Log.d(true.toString(),"value of log status")
-    Button(onClick = { /*TODO*/ },
+    Button(onClick = {  },
 //        enabled = st,
 //        enabled = isEmailValid(emState.value) && pswdState.value.length>5,
         modifier = Modifier
@@ -430,6 +435,11 @@ fun DividerComp () {
             color = Color.Gray,
             thickness = 1.dp)
     }
+}
+
+@Composable
+fun CircularProgressIndicatorfun() {
+    CircularProgressIndicator()
 }
 
 //@Preview(showBackground = true)

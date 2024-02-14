@@ -1,14 +1,33 @@
 package com.example.kallkaro.Data
 
+import android.app.Application
+import android.content.Context
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
+import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.kallkaro.Data.Rules.Validator
+import com.example.kallkaro.MainActivity
+import com.example.kallkaro.Navigation.Router
+import com.example.kallkaro.Navigation.Screen
+import com.example.kallkaro.ui.theme.ng2
+import com.google.firebase.auth.FirebaseAuth
 
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
     var registrationUIState = mutableStateOf(RegistrationUIState())
     var allValid = mutableStateOf(false)
+    var signUpProgress = mutableStateOf(false)
 
     fun onEvent(event: RegistrationUIEvents){
         validateDatawithRules()
@@ -55,6 +74,7 @@ class RegistrationViewModel: ViewModel() {
         Log.d(TAG, "Inside Signup")
 //        printstate()
         //validateDatawithRules()
+        createUser(email = registrationUIState.value.email, password = registrationUIState.value.password)
     }
 
     fun validateDatawithRules(){
@@ -96,5 +116,26 @@ class RegistrationViewModel: ViewModel() {
     private fun printstate(){
         Log.d(TAG, "Inside reg printstate")
         Log.d(TAG, registrationUIState.value.toString())
+    }
+
+    private fun createUser(email: String, password: String) {
+        signUpProgress.value = true
+        FirebaseAuth
+            .getInstance()
+            .createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                Log.d(TAG, "Inside oncomplete")
+                Log.d(TAG, "Is successful = ${it.isSuccessful}")
+                signUpProgress.value = false
+                if(it.isSuccessful){
+                    Router.navigateTo(Screen.HomeScreen)
+                }
+            }
+            .addOnFailureListener {
+                signUpProgress.value = false
+                Log.d(TAG, "Inside onfailure")
+                Log.d(TAG, "Is successful = ${it.message}")
+                Log.d(TAG, "Is successful = ${it.localizedMessage}")
+            }
     }
 }

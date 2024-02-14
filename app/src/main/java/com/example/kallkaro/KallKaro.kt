@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import com.example.kallkaro.Data.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
+import com.example.kallkaro.Screens.Home
 import com.example.kallkaro.Screens.Login
 import com.example.kallkaro.Screens.Register
 import com.example.kallkaro.ui.theme.ng1
@@ -25,6 +26,9 @@ fun KallKaro() {
                 }
                 is Screen.LoginScreen -> {
                     Login()
+                }
+                is Screen.HomeScreen -> {
+                    Home(registrationViewModel = RegistrationViewModel())
                 }
             }
         }
