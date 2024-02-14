@@ -225,6 +225,7 @@ fun RegButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit, f
 
 @Composable
 fun LogButton () {
+    Log.d(true.toString(),"value of log status")
     Button(onClick = { /*TODO*/ },
 //        enabled = st,
 //        enabled = isEmailValid(emState.value) && pswdState.value.length>5,

@@ -8,6 +8,7 @@ import com.example.kallkaro.Data.Rules.Validator
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
     var registrationUIState = mutableStateOf(RegistrationUIState())
+    var allValid = mutableStateOf(false)
 
     fun onEvent(event: RegistrationUIEvents){
         validateDatawithRules()

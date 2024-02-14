@@ -57,19 +57,13 @@ fun Register(registrationViewModel: RegistrationViewModel) {
             Spacer(modifier = Modifier.size(50.dp))
             KallKaroComp()
             Spacer(modifier = Modifier.size(30.dp))
-            TextField(labelvalue = stringResource(id = R.string.fname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(
-                RegistrationUIEvents.FirstNameChanged(it))})
-            TextField(labelvalue = stringResource(id = R.string.lname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(
-                RegistrationUIEvents.LastNameChanged(it))})
-            EmTextField(labelvalue = stringResource(id = R.string.eml),Icons.Default.Email, onTextSelected = { registrationViewModel.onEvent(
-                RegistrationUIEvents.EmailChanged(it))})
-            PswdTextField(labelvalue = stringResource(id = R.string.pswd), onTextSelected = { registrationViewModel.onEvent(
-                RegistrationUIEvents.PasswordChanged(it))})
-            CheckBoxComp(value = stringResource(id = R.string.TC), onCheckBoxTick = { registrationViewModel.onEvent(
-                RegistrationUIEvents.CheckBoxClicked(it))})
+            TextField(labelvalue = stringResource(id = R.string.fname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.FirstNameChanged(it))})
+            TextField(labelvalue = stringResource(id = R.string.lname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.LastNameChanged(it))})
+            EmTextField(labelvalue = stringResource(id = R.string.eml),Icons.Default.Email, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.EmailChanged(it))})
+            PswdTextField(labelvalue = stringResource(id = R.string.pswd), onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.PasswordChanged(it))})
+            CheckBoxComp(value = stringResource(id = R.string.TC), onCheckBoxTick = { registrationViewModel.onEvent(RegistrationUIEvents.CheckBoxClicked(it))})
             Spacer(modifier = Modifier.height(30.dp))
-            RegButton(viewModel = RegistrationViewModel(), onButtonSelected = { registrationViewModel.onEvent(
-                RegistrationUIEvents.RegistrationButtonClicked)}, fNameSt = Validator.ValidateFName(fname = registrationViewModel.registrationUIState.value.firstName).status, lNameSt = Validator.ValidateLName(lname = registrationViewModel.registrationUIState.value.lastName).status, EmSt = Validator.ValidateEmail(email = registrationViewModel.registrationUIState.value.email).status, PswdSt = Validator.ValidatePswd(pswd = registrationViewModel.registrationUIState.value.password).status, ChkSt = Validator.ValidateCheck(chk = registrationViewModel.registrationUIState.value.checked).status)
+            RegButton(viewModel = RegistrationViewModel(), onButtonSelected = { registrationViewModel.onEvent(RegistrationUIEvents.RegistrationButtonClicked)}, fNameSt = Validator.ValidateFName(fname = registrationViewModel.registrationUIState.value.firstName).status, lNameSt = Validator.ValidateLName(lname = registrationViewModel.registrationUIState.value.lastName).status, EmSt = Validator.ValidateEmail(email = registrationViewModel.registrationUIState.value.email).status, PswdSt = Validator.ValidatePswd(pswd = registrationViewModel.registrationUIState.value.password).status, ChkSt = Validator.ValidateCheck(chk = registrationViewModel.registrationUIState.value.checked).status)
             Spacer(modifier = Modifier.height(10.dp))
             DividerComp()
             Spacer(modifier = Modifier.height(10.dp))
