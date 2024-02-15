@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.kallkaro.Data.LoginViewModel
 import com.example.kallkaro.Data.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
@@ -25,7 +26,7 @@ fun KallKaro() {
                     Register(registrationViewModel = RegistrationViewModel())
                 }
                 is Screen.LoginScreen -> {
-                    Login()
+                    Login(viewModel = LoginViewModel())
                 }
                 is Screen.HomeScreen -> {
                     Home(registrationViewModel = RegistrationViewModel())

@@ -27,6 +27,16 @@ object Validator {
             chk
         )
     }
+    fun ValidatelogEmail(email: String): ValidationResult{
+        return ValidationResult(
+            (!email.isNullOrEmpty())
+        )
+    }
+    fun ValidatelogPswd(pswd: String): ValidationResult{
+        return ValidationResult(
+            (!pswd.isNullOrEmpty())
+        )
+    }
 }
 
 data class ValidationResult(

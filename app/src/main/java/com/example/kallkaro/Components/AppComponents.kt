@@ -68,6 +68,7 @@ import com.example.kallkaro.ui.theme.ng2
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
 import androidx.compose.runtime.LaunchedEffect
+import com.example.kallkaro.Data.LoginViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -229,9 +230,26 @@ fun RegButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit, f
 }
 
 @Composable
-fun LogButton () {
-    Log.d(true.toString(),"value of log status")
-    Button(onClick = {  },
+fun LogButton (viewModel: LoginViewModel, onButtonSelected: () -> Unit, EmSt: Boolean, PswdSt: Boolean) {
+    val st = EmSt && PswdSt
+    Log.d(st.toString(),"value of login status")
+    Button(onClick = { onButtonSelected.invoke() },
+        enabled = st,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(18.dp),
+        colors = ButtonDefaults.buttonColors(ng2)
+    ) {
+        Text(text = "Login",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun LogoutButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit) {
+    Log.d(true.toString(),"value of logout status")
+    Button(onClick = { onButtonSelected.invoke() },
 //        enabled = st,
 //        enabled = isEmailValid(emState.value) && pswdState.value.length>5,
         modifier = Modifier
@@ -239,7 +257,7 @@ fun LogButton () {
             .heightIn(18.dp),
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
-        Text(text = "Login",
+        Text(text = "Logout",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold)
     }

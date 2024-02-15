@@ -8,5 +8,5 @@ sealed class RegistrationUIEvents {
     data class CheckBoxClicked(val checked: Boolean) : RegistrationUIEvents()
 
     object RegistrationButtonClicked : RegistrationUIEvents()
-
+    object LogoutButtonClicked : RegistrationUIEvents()
 }

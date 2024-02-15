@@ -22,12 +22,20 @@ import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.example.kallkaro.ui.theme.ng2
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth.AuthStateListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
     var registrationUIState = mutableStateOf(RegistrationUIState())
     var allValid = mutableStateOf(false)
     var signUpProgress = mutableStateOf(false)
+    private val toastMessage = MutableLiveData<String>()
+    val _toastMessage = toastMessage
 
     fun onEvent(event: RegistrationUIEvents){
         validateDatawithRules()
@@ -67,14 +75,22 @@ class RegistrationViewModel: ViewModel() {
             is RegistrationUIEvents.RegistrationButtonClicked -> {
                 regclick()
             }
+            is RegistrationUIEvents.LogoutButtonClicked -> {
+                logoutclick()
+            }
         }
     }
 
     private fun regclick(){
         Log.d(TAG, "Inside Signup")
-//        printstate()
-        //validateDatawithRules()
         createUser(email = registrationUIState.value.email, password = registrationUIState.value.password)
+    }
+    private fun logoutclick(){
+        Log.d(TAG, "Inside Home")
+        logoutUser()
+    }
+    private fun chkclick(){
+        Log.d(TAG, "Inside checkbox")
     }
 
     fun validateDatawithRules(){
@@ -109,10 +125,6 @@ class RegistrationViewModel: ViewModel() {
         )
     }
 
-    private fun chkclick(){
-        Log.d(TAG, "Inside checkbox")
-    }
-
     private fun printstate(){
         Log.d(TAG, "Inside reg printstate")
         Log.d(TAG, registrationUIState.value.toString())
@@ -128,6 +140,7 @@ class RegistrationViewModel: ViewModel() {
                 Log.d(TAG, "Is successful = ${it.isSuccessful}")
                 signUpProgress.value = false
                 if(it.isSuccessful){
+                    Log.d(true.toString(), "Inside Home after registeration")
                     Router.navigateTo(Screen.HomeScreen)
                 }
             }
@@ -137,5 +150,29 @@ class RegistrationViewModel: ViewModel() {
                 Log.d(TAG, "Is successful = ${it.message}")
                 Log.d(TAG, "Is successful = ${it.localizedMessage}")
             }
+    }
+    private fun logoutUser(){
+        signUpProgress.value = true
+        val auth = FirebaseAuth.getInstance()
+        val authlistener = AuthStateListener{
+            if(it.currentUser == null){
+                _toastMessage.value = "Logged Out Successfully"
+                Log.d(TAG,"Logged Out Successful")
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(1000)
+                    Router.navigateTo(Screen.LoginScreen)
+                    signUpProgress.value = false
+                }
+            } else{
+                _toastMessage.value = "Log Out Failed"
+                Log.d(TAG, "Logout Fail")
+                CoroutineScope(Dispatchers.Main).launch {
+                    delay(1000)
+                    signUpProgress.value = false
+                }
+            }
+        }
+        auth.addAuthStateListener(authlistener)
+        auth.signOut()
     }
 }
