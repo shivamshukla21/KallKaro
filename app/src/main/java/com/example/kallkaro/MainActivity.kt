@@ -11,7 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.kallkaro.Data.RegistrationViewModel
+import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.ui.theme.KallKaroTheme
 
 class MainActivity : ComponentActivity() {

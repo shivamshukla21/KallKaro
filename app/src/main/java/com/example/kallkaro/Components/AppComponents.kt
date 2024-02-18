@@ -3,6 +3,7 @@
 package com.example.kallkaro.Components
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +17,9 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Password
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -38,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
@@ -58,18 +61,17 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.kallkaro.Data.RegistrationViewModel
+import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.example.kallkaro.ui.theme.Purple40
 import com.example.kallkaro.ui.theme.bgcol
 import com.example.kallkaro.ui.theme.colorText
 import com.example.kallkaro.ui.theme.ng2
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.delay
-import androidx.compose.runtime.LaunchedEffect
-import com.example.kallkaro.Data.LoginViewModel
-import kotlinx.coroutines.launch
+import com.example.kallkaro.Data.Login.LoginViewModel
+import com.example.kallkaro.Data.Rules.Validator
+import com.example.kallkaro.MainActivity
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun NormalTextComponent (value: String) {
@@ -101,7 +103,7 @@ fun HeadingTextComponent (value: String) {
 }
 
 @Composable
-fun TextField (labelvalue: String, painterResource: ImageVector, onTextSelected: (String) -> Unit) {
+fun TextField (labelvalue: String, onTextSelected: (String) -> Unit) {
     var txt = rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
@@ -125,13 +127,13 @@ fun TextField (labelvalue: String, painterResource: ImageVector, onTextSelected:
             onTextSelected(it)
         },
         leadingIcon = {
-            Icon(painterResource, contentDescription = "")
+            Icon(Icons.Filled.Person, contentDescription = "")
         }
     )
 }
 
 @Composable
-fun EmTextField (labelvalue: String, painterResource: ImageVector, onTextSelected: (String) -> Unit) {
+fun EmTextField (labelvalue: String, onTextSelected: (String) -> Unit) {
     var txt = rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
@@ -155,7 +157,7 @@ fun EmTextField (labelvalue: String, painterResource: ImageVector, onTextSelecte
             onTextSelected(it)
         },
         leadingIcon = {
-            Icon(painterResource, contentDescription = "")
+            Icon(Icons.Filled.Email, contentDescription = "")
         }
     )
 }
@@ -194,7 +196,7 @@ fun PswdTextField (labelvalue: String, onTextSelected: (String) -> Unit) {
             onTextSelected(it)
         },
         leadingIcon = {
-            Icon(Icons.Default.Lock, contentDescription = "")
+            Icon(Icons.Filled.Password, contentDescription = "")
         },
         trailingIcon = {
             IconButton(onClick = { visib.value = !visib.value }) {
@@ -331,26 +333,33 @@ fun ClickableTextComp1 (value: String, onTextSelected: (String)->Unit) {
 }
 
 @Composable
-fun ClickableTextComp2 (value: String, onTextSelected: (String)->Unit) {
+fun ClickableTextComp2 (isval: Boolean, value: String, onTextSelected: (String)->Unit) {
     val forgot = "Forgot details? Let us help you "
     val regain = "regain access!"
-
+    val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     val annotatedString = buildAnnotatedString {
         append(forgot)
-        withStyle(style = SpanStyle(color = Purple40, fontSize = TextUnit.Unspecified)){
-            pushStringAnnotation(tag = regain, annotation = "https://support.google.com/accounts")
+        withStyle(style = SpanStyle(color = Purple40, fontSize = TextUnit.Unspecified)) {
+            pushStringAnnotation(tag = regain, annotation = regain)
             append(regain)
         }
     }
+
     ClickableText(text = annotatedString,
-        modifier = Modifier.offset(x=10.dp),
+        modifier = Modifier.offset(x = 10.dp),
         onClick = { offset ->
             annotatedString.getStringAnnotations(offset, offset)
                 .firstOrNull()?.let { stringAnnotation ->
-                    uriHandler.openUri(stringAnnotation.item)
+                    if (isval) {
+                        onTextSelected(stringAnnotation.item)
+                        Toast.makeText(context, "Email Sent", Toast.LENGTH_SHORT).show()
+                    }
+                    else
+                        Toast.makeText(context,"Email Required", Toast.LENGTH_SHORT).show()
                 }
-        })
+        }
+    )
 }
 
 @Composable

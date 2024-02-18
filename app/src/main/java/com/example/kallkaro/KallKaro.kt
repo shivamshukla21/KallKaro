@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.kallkaro.Data.LoginViewModel
-import com.example.kallkaro.Data.RegistrationViewModel
+import com.example.kallkaro.Data.Login.LoginViewModel
+import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.example.kallkaro.Screens.Home

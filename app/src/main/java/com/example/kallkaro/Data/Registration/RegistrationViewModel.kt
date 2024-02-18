@@ -1,32 +1,21 @@
-package com.example.kallkaro.Data
+package com.example.kallkaro.Data.Registration
 
-import android.app.Application
-import android.content.Context
 import android.util.Log
-import android.widget.Button
-import android.widget.Toast
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.kallkaro.Data.Rules.Validator
-import com.example.kallkaro.MainActivity
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
-import com.example.kallkaro.ui.theme.ng2
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuth.AuthStateListener
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class RegistrationViewModel: ViewModel() {
@@ -132,15 +121,24 @@ class RegistrationViewModel: ViewModel() {
 
     private fun createUser(email: String, password: String) {
         signUpProgress.value = true
-        FirebaseAuth
-            .getInstance()
-            .createUserWithEmailAndPassword(email, password)
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 Log.d(TAG, "Inside oncomplete")
                 Log.d(TAG, "Is successful = ${it.isSuccessful}")
                 signUpProgress.value = false
                 if(it.isSuccessful){
-                    Log.d(true.toString(), "Inside Home after registeration")
+                    Log.d(true.toString(), "Inside Home after registration")
+                    val user = hashMapOf("email" to email)
+                    db.collection("users").document(email).set(user)
+                        .addOnSuccessListener {
+                            Log.d(TAG, "User added to Firestore")
+                        }
+                        .addOnFailureListener { e: Exception ->
+                            Log.d(TAG, "Error adding user to Firestore", e)
+                        }
                     Router.navigateTo(Screen.HomeScreen)
                 }
             }
@@ -149,8 +147,38 @@ class RegistrationViewModel: ViewModel() {
                 Log.d(TAG, "Inside onfailure")
                 Log.d(TAG, "Is successful = ${it.message}")
                 Log.d(TAG, "Is successful = ${it.localizedMessage}")
+                if (it.message == "The email address is already in use by another account.") {
+                    Log.d(TAG, "Already registered")
+                }
             }
     }
+
+
+//    private fun createUser(email: String, password: String) {
+//        signUpProgress.value = true
+//        FirebaseAuth
+//            .getInstance()
+//            .createUserWithEmailAndPassword(email, password)
+//            .addOnCompleteListener {
+//                Log.d(TAG, "Inside oncomplete")
+//                Log.d(TAG, "Is successful = ${it.isSuccessful}")
+//                signUpProgress.value = false
+//                if(it.isSuccessful){
+//                    Log.d(true.toString(), "Inside Home after registeration")
+//                    Router.navigateTo(Screen.HomeScreen)
+//                }
+//            }
+//            .addOnFailureListener {
+//                signUpProgress.value = false
+//                Log.d(TAG, "Inside onfailure")
+//                Log.d(TAG, "Is successful = ${it.message}")
+//                Log.d(TAG, "Is successful = ${it.localizedMessage}")
+//                if (it.message == "The email address is already in use by another account.") {
+//                    Log.d(TAG, "Already registered")
+//                }
+//            }
+//    }
+
     private fun logoutUser(){
         signUpProgress.value = true
         val auth = FirebaseAuth.getInstance()

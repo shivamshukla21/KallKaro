@@ -1,6 +1,5 @@
 package com.example.kallkaro.Screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,13 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,16 +29,15 @@ import com.example.kallkaro.Components.PswdTextField
 import com.example.kallkaro.Components.RegButton
 import com.example.kallkaro.Components.TextField
 import com.example.kallkaro.Components.EmTextField
-import com.example.kallkaro.Data.RegistrationViewModel
+import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Data.Rules.Validator
-import com.example.kallkaro.Data.RegistrationUIEvents
+import com.example.kallkaro.Data.Registration.RegistrationUIEvents
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.example.kallkaro.Components.CircularProgressIndicatorfun
 import com.example.kallkaro.Navigation.SystemBackButtonHandler
 import com.example.kallkaro.R
 import com.example.kallkaro.ui.theme.bg
-import java.lang.Exception
 
 @Composable
 fun Register(registrationViewModel: RegistrationViewModel) {
@@ -66,9 +58,9 @@ fun Register(registrationViewModel: RegistrationViewModel) {
                 Spacer(modifier = Modifier.size(50.dp))
                 KallKaroComp()
                 Spacer(modifier = Modifier.size(30.dp))
-                TextField(labelvalue = stringResource(id = R.string.fname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.FirstNameChanged(it))})
-                TextField(labelvalue = stringResource(id = R.string.lname),Icons.Default.AccountCircle, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.LastNameChanged(it))})
-                EmTextField(labelvalue = stringResource(id = R.string.eml),Icons.Default.Email, onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.EmailChanged(it))})
+                TextField(labelvalue = stringResource(id = R.string.fname), onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.FirstNameChanged(it))})
+                TextField(labelvalue = stringResource(id = R.string.lname), onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.LastNameChanged(it))})
+                EmTextField(labelvalue = stringResource(id = R.string.eml), onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.EmailChanged(it))})
                 PswdTextField(labelvalue = stringResource(id = R.string.pswd), onTextSelected = { registrationViewModel.onEvent(RegistrationUIEvents.PasswordChanged(it))})
                 CheckBoxComp(value = stringResource(id = R.string.TC), onCheckBoxTick = { registrationViewModel.onEvent(RegistrationUIEvents.CheckBoxClicked(it))})
                 Spacer(modifier = Modifier.height(30.dp))

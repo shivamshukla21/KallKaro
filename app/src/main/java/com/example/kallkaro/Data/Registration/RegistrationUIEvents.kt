@@ -1,4 +1,4 @@
-package com.example.kallkaro.Data
+package com.example.kallkaro.Data.Registration
 
 sealed class RegistrationUIEvents {
     data class FirstNameChanged(val firstName: String) : RegistrationUIEvents()

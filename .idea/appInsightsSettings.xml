@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.kallkaro" />
+                  <option name="mobileSdkAppId" value="1:184604061072:android:cccd5ca9ac4afdaeddd715" />
+                  <option name="projectId" value="kallkaro" />
+                  <option name="projectNumber" value="184604061072" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

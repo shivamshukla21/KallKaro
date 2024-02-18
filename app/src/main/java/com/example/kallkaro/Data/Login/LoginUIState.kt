@@ -1,4 +1,4 @@
-package com.example.kallkaro.Data
+package com.example.kallkaro.Data.Login
 
 data class LoginUIState (
     var email : String = "",

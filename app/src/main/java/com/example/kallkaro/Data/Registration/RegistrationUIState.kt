@@ -1,4 +1,4 @@
-package com.example.kallkaro.Data
+package com.example.kallkaro.Data.Registration
 
 data class RegistrationUIState (
     var firstName : String = "",

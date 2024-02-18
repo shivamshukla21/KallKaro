@@ -3,7 +3,7 @@ package com.example.kallkaro.Navigation
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
-sealed class Screen(){
+sealed class Screen() {
     object RegisterScreen : Screen()
     object LoginScreen : Screen()
     object HomeScreen : Screen()

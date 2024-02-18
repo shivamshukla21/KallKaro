@@ -1,7 +1,5 @@
 package com.example.kallkaro.Screens
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,23 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.kallkaro.Components.CircularProgressIndicatorfun
 import com.example.kallkaro.Components.HeadingTextComponent
 import com.example.kallkaro.Components.LogoutButton
-import com.example.kallkaro.Data.RegistrationUIEvents
-import com.example.kallkaro.Data.RegistrationViewModel
-import com.example.kallkaro.Navigation.Router
-import com.example.kallkaro.Navigation.Screen
+import com.example.kallkaro.Data.Registration.RegistrationUIEvents
+import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.ui.theme.bg
 
 @Composable
@@ -39,7 +30,8 @@ fun Home(registrationViewModel: RegistrationViewModel) {
             Column(modifier = Modifier.fillMaxSize()) {
                 HeadingTextComponent(value = "Login Successful")
                 Spacer(modifier = Modifier.size(40.dp))
-                LogoutButton(viewModel = RegistrationViewModel(), onButtonSelected = {registrationViewModel.onEvent(RegistrationUIEvents.LogoutButtonClicked)})
+                LogoutButton(viewModel = RegistrationViewModel(), onButtonSelected = {registrationViewModel.onEvent(
+                    RegistrationUIEvents.LogoutButtonClicked)})
             }
     }
         if(registrationViewModel.signUpProgress.value){
