@@ -82,15 +82,41 @@ class LoginViewModel: ViewModel() {
     private fun loginUser(email: String, password: String) {
         loginProgress.value = true
         Log.d(TAG, "Inside Login user fun2")
-        FirebaseAuth
-            .getInstance()
-            .signInWithEmailAndPassword(email, password)
+        val auth = FirebaseAuth.getInstance()
+        val db = FirebaseFirestore.getInstance()
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener {
                 Log.d(TAG, "Inside Login user fun3")
                 Log.d(TAG, "login success = {${it.isSuccessful}}")
                 if (it.isSuccessful) {
-                    Log.d(true.toString(), "Inside Home after login")
-                    Router.navigateTo(Screen.HomeScreen)
+                    val user = auth.currentUser
+                    if (user != null && user.isEmailVerified) {
+                        Log.d(true.toString(), "Inside Home after login")
+                        db.collection("users").document(user.uid).get()
+                            .addOnSuccessListener { document ->
+                                if (document != null && document.exists()) {
+                                    Log.d(TAG, "User details already exist in Firestore")
+                                } else {
+                                    val userDetails = hashMapOf(
+                                        "email" to user.email
+                                    )
+                                    db.collection("users").document(user.uid).set(userDetails)
+                                        .addOnSuccessListener {
+                                            Log.d(TAG, "User details added to Firestore")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w(TAG, "Error adding user details to Firestore", e)
+                                        }
+                                }
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(TAG, "Error checking user details in Firestore", e)
+                            }
+                        Router.navigateTo(Screen.HomeScreen)
+                    } else {
+                        auth.signOut()
+                        Log.d(TAG, "Email not verified")
+                    }
                     loginProgress.value = false
                 }
             }
@@ -100,6 +126,7 @@ class LoginViewModel: ViewModel() {
                 loginProgress.value = false
             }
     }
+
 
     private fun resetPass(email: String) {
         loginProgress.value = true
@@ -127,82 +154,3 @@ class LoginViewModel: ViewModel() {
         }
     }
 }
-
-
-//    private fun resetPass(email: String){
-//        loginProgress.value = true
-//        val auth = FirebaseAuth.getInstance()
-//
-//        auth.fetchSignInMethodsForEmail(email).addOnCompleteListener { task ->
-//            if (task.isSuccessful) {
-//                val isNewUser = task.result?.signInMethods?.isEmpty() ?: true
-//                if (!isNewUser) {
-//                    auth.sendPasswordResetEmail(email)
-//                        .addOnCompleteListener {
-//                            if (it.isSuccessful){
-//                                Log.d(TAG, "Email sent")
-//                            } else{
-//                                Log.d(TAG,"Error")
-//                            }
-//                            loginProgress.value = false
-//                        }
-//                } else {
-//                    Log.d(TAG,"User not registered")
-//                    loginProgress.value = false
-//                }
-//            } else {
-//                Log.d(TAG,"Error checking user registration status")
-//                loginProgress.value = false
-//            }
-//        }
-//    }
-//}
-
-
-//    private fun resetPass(email: String) {
-//        loginProgress.value = true
-//        FirebaseAuth
-//            .getInstance()
-//            .sendPasswordResetEmail(email)
-//            .addOnCompleteListener {
-//                if (it.isSuccessful) {
-//                    Log.d(TAG, "Email sent")
-//                    loginProgress.value = false
-//                } else {
-//                    Log.d(TAG, "Email not sent")
-//                    loginProgress.value = false
-//                }
-//            }
-//    }
-//}
-
-
-//        val newUser = mutableStateOf(true)
-//        val auth = FirebaseAuth.getInstance()
-//        val signIn = auth.fetchSignInMethodsForEmail(email)
-//        signIn.addOnCompleteListener {
-//            if(it.isSuccessful){
-//                newUser.value = it.result?.signInMethods?.isEmpty()?: true
-//                if(!newUser.value){
-//                    auth.sendPasswordResetEmail(email)
-//                        .addOnCompleteListener {
-//                            if (it.isSuccessful){
-//                                Log.d(TAG, "Email sent")
-//                                loginProgress.value = false
-//                            } else{
-//                                Log.d(TAG,"error")
-//                                loginProgress.value = false
-//                            }
-//                        }
-//                } else{
-//                    Log.d(TAG,"User not registered")
-//                    loginProgress.value = false
-//                }
-//            } else{
-//                Log.d(TAG,"error")
-//                loginProgress.value = false
-//            }
-//        }
-//
-//    }
-//}
