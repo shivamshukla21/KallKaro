@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
@@ -16,7 +17,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import com.google.firebase.firestore.FirebaseFirestore
-
+import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
+import com.google.android.gms.tasks.Tasks
 
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
@@ -62,7 +69,9 @@ class RegistrationViewModel: ViewModel() {
                 chkclick()
             }
             is RegistrationUIEvents.RegistrationButtonClicked -> {
-                regclick()
+                viewModelScope.launch {
+                    regclick()
+                }
             }
             is RegistrationUIEvents.LogoutButtonClicked -> {
                 logoutclick()
@@ -70,7 +79,7 @@ class RegistrationViewModel: ViewModel() {
         }
     }
 
-    private fun regclick(){
+    private suspend fun regclick(){
         Log.d(TAG, "Inside Signup")
         createUser(email = registrationUIState.value.email, password = registrationUIState.value.password)
     }
@@ -119,65 +128,75 @@ class RegistrationViewModel: ViewModel() {
         Log.d(TAG, registrationUIState.value.toString())
     }
 
-    private fun createUser(email: String, password: String) {
+    private suspend fun createUser(email: String, password: String) {
         signUpProgress.value = true
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
         auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener {
-                Log.d(TAG, "Inside oncomplete")
-                Log.d(TAG, "Is successful = ${it.isSuccessful}")
-                signUpProgress.value = false
-                if(it.isSuccessful){
-                    Log.d(true.toString(), "Inside Home after registration")
-                    val user = hashMapOf("email" to email)
-                    db.collection("users").document(email).set(user)
-                        .addOnSuccessListener {
-                            Log.d(TAG, "User added to Firestore")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val firebaseUser = auth.currentUser
+                    CoroutineScope(Dispatchers.Main).launch {
+                        val emailVerified = sendEmailVerificationAndAwait(firebaseUser!!)
+                        if (emailVerified) {
+                            Log.d(TAG, "Verification email sent to ${firebaseUser.email}")
+                            signUpProgress.value = false
+                            val user = hashMapOf("email" to email)
+                            db.collection("users").document(email).set(user)
+                                .addOnSuccessListener {
+                                    Log.d(TAG, "User added to Firestore")
+                                    Router.navigateTo(Screen.HomeScreen)
+                                    Log.d(TAG, "Inside Home after registration")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.d(TAG, "Error adding user to Firestore", e)
+                                }
+                        } else {
+                            signUpProgress.value = false
+                            Log.d(TAG, "Failed to send verification email")
                         }
-                        .addOnFailureListener { e: Exception ->
-                            Log.d(TAG, "Error adding user to Firestore", e)
-                        }
-                    Router.navigateTo(Screen.HomeScreen)
+                    }
+                } else {
+                    Log.d(TAG, "User not created")
+                    signUpProgress.value = false
                 }
             }
-            .addOnFailureListener {
+            .addOnFailureListener { e ->
                 signUpProgress.value = false
-                Log.d(TAG, "Inside onfailure")
-                Log.d(TAG, "Is successful = ${it.message}")
-                Log.d(TAG, "Is successful = ${it.localizedMessage}")
-                if (it.message == "The email address is already in use by another account.") {
-                    Log.d(TAG, "Already registered")
-                }
+                Log.d(TAG, "Inside onFailure")
+                Log.d(TAG, "Error message: ${e.message}")
             }
     }
 
+    private suspend fun sendEmailVerificationAndAwait(firebaseUser: FirebaseUser): Boolean {
+        return try {
+            Tasks.await(firebaseUser.sendEmailVerification())
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+//        firebaseUser.sendEmailVerification()
+//        return suspendCoroutine { continuation ->
+//            if (firebaseUser.isEmailVerified){
+//                continuation.resume(true)
+//            }
+//            else{
+//                continuation.resume(false)
+//            }
 
-//    private fun createUser(email: String, password: String) {
-//        signUpProgress.value = true
-//        FirebaseAuth
-//            .getInstance()
-//            .createUserWithEmailAndPassword(email, password)
-//            .addOnCompleteListener {
-//                Log.d(TAG, "Inside oncomplete")
-//                Log.d(TAG, "Is successful = ${it.isSuccessful}")
-//                signUpProgress.value = false
-//                if(it.isSuccessful){
-//                    Log.d(true.toString(), "Inside Home after registeration")
-//                    Router.navigateTo(Screen.HomeScreen)
+//            firebaseUser.sendEmailVerification()
+//                .addOnCompleteListener { verificationTask ->
+//                    if (verificationTask.isSuccessful) {
+//                        continuation.resume(true)
+//                    } else {
+//                        continuation.resume(false)
+//                    }
 //                }
-//            }
-//            .addOnFailureListener {
-//                signUpProgress.value = false
-//                Log.d(TAG, "Inside onfailure")
-//                Log.d(TAG, "Is successful = ${it.message}")
-//                Log.d(TAG, "Is successful = ${it.localizedMessage}")
-//                if (it.message == "The email address is already in use by another account.") {
-//                    Log.d(TAG, "Already registered")
+//                .addOnFailureListener { e ->
+//                    continuation.resumeWithException(e)
 //                }
-//            }
-//    }
 
     private fun logoutUser(){
         signUpProgress.value = true
