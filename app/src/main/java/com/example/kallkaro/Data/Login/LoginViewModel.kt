@@ -91,16 +91,13 @@ class LoginViewModel: ViewModel() {
                 if (it.isSuccessful) {
                     val user = auth.currentUser
                     if (user != null && user.isEmailVerified) {
-                        Log.d(true.toString(), "Inside Home after login")
                         db.collection("users").document(user.uid).get()
                             .addOnSuccessListener { document ->
                                 if (document != null && document.exists()) {
                                     Log.d(TAG, "User details already exist in Firestore")
                                 } else {
-                                    val userDetails = hashMapOf(
-                                        "email" to user.email
-                                    )
-                                    db.collection("users").document(user.uid).set(userDetails)
+                                    val us = hashMapOf("email" to user.email)
+                                    db.collection("users").document(email).set(us)
                                         .addOnSuccessListener {
                                             Log.d(TAG, "User details added to Firestore")
                                         }
@@ -113,6 +110,7 @@ class LoginViewModel: ViewModel() {
                                 Log.w(TAG, "Error checking user details in Firestore", e)
                             }
                         Router.navigateTo(Screen.HomeScreen)
+                        Log.d(true.toString(), "Inside Home after login")
                     } else {
                         auth.signOut()
                         Log.d(TAG, "Email not verified")

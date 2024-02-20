@@ -93,7 +93,7 @@ class RegistrationViewModel: ViewModel() {
 
     private suspend fun regclick(){
         Log.d(TAG, "Inside Signup")
-        createUser(email = registrationUIState.value.email, password = registrationUIState.value.password)
+        createUser(fname = registrationUIState.value.firstName, lname = registrationUIState.value.lastName, email = registrationUIState.value.email, password = registrationUIState.value.password)
     }
     private fun logoutclick(){
         Log.d(TAG, "Inside Home")
@@ -140,7 +140,7 @@ class RegistrationViewModel: ViewModel() {
         Log.d(TAG, registrationUIState.value.toString())
     }
 
-    private suspend fun createUser(email: String, password: String) {
+    private suspend fun createUser(fname: String, lname: String, email: String, password: String) {
         signUpProgress.value = true
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
@@ -158,7 +158,7 @@ class RegistrationViewModel: ViewModel() {
                             Log.d(TAG, "before email verific await")
                             if (emailVerified.await() == true) {
                                 signUpProgress.value = false
-                                val user = hashMapOf("email" to email)
+                                val user = hashMapOf("firstname" to fname, "lastname" to lname, "email" to email)
                                 db.collection("users").document(email).set(user)
                                     .addOnSuccessListener {
                                         Log.d(TAG, "User added to Firestore")
