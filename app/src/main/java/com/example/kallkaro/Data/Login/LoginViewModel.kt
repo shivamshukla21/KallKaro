@@ -1,21 +1,35 @@
 package com.example.kallkaro.Data.Login
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 
 class LoginViewModel: ViewModel() {
     private val TAG = LoginViewModel::class.simpleName
     var loginUIState = mutableStateOf(LoginUIState())
     var loginProgress = mutableStateOf(false)
+    private val _toastMessage = MutableLiveData<String>()
+    val toastMessage: LiveData<String> = _toastMessage
 
     fun onEvent(event: LoginUIEvents) {
         validatelogDatawithRules()
@@ -38,7 +52,7 @@ class LoginViewModel: ViewModel() {
             }
 
             is LoginUIEvents.LoginButtonClicked -> {
-                loginclick()
+                    loginclick()
             }
 
             is LoginUIEvents.ResetClicked -> {
@@ -90,17 +104,15 @@ class LoginViewModel: ViewModel() {
                 Log.d(TAG, "login success = {${it.isSuccessful}}")
                 if (it.isSuccessful) {
                     val user = auth.currentUser
-                    if (user != null && user.isEmailVerified) {
-                        Log.d(true.toString(), "Inside Home after login")
-                        db.collection("users").document(user.uid).get()
+                    val userDocRef = db.collection("users").document(user!!.email.toString())
+                    if (user.isEmailVerified) {
+                        userDocRef.get()
                             .addOnSuccessListener { document ->
                                 if (document != null && document.exists()) {
                                     Log.d(TAG, "User details already exist in Firestore")
                                 } else {
-                                    val userDetails = hashMapOf(
-                                        "email" to user.email
-                                    )
-                                    db.collection("users").document(user.uid).set(userDetails)
+                                    val us = hashMapOf("email" to email)
+                                    userDocRef.set(us)
                                         .addOnSuccessListener {
                                             Log.d(TAG, "User details added to Firestore")
                                         }
@@ -112,12 +124,19 @@ class LoginViewModel: ViewModel() {
                             .addOnFailureListener { e ->
                                 Log.w(TAG, "Error checking user details in Firestore", e)
                             }
-                        Router.navigateTo(Screen.HomeScreen)
+                        Log.d("LoginViewModel", "Thread: ${Thread.currentThread().name}")
+                        _toastMessage.value = "kr be kuch"
+                        Handler(Looper.getMainLooper()).post(){
+                            _toastMessage.value = "Something happened"
+                            Router.navigateTo(Screen.HomeScreen)
+                        }
+                        Log.d(true.toString(), "Inside Home after login")
                     } else {
                         auth.signOut()
                         Log.d(TAG, "Email not verified")
                     }
                     loginProgress.value = false
+                    Log.d(TAG, "{${toastMessage.value}}")
                 }
             }
             .addOnFailureListener {
@@ -133,7 +152,8 @@ class LoginViewModel: ViewModel() {
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
 
-        db.collection("users").whereEqualTo("email", email).get().addOnSuccessListener { documents ->
+        db.collection("users").whereEqualTo("email", email).get()
+            .addOnSuccessListener { documents ->
             if (documents.isEmpty) {
                 Log.d(TAG, "User not registered")
                 loginProgress.value = false
@@ -154,3 +174,4 @@ class LoginViewModel: ViewModel() {
         }
     }
 }
+

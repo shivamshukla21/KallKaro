@@ -1,5 +1,7 @@
 package com.example.kallkaro.Data.Registration
 
+import com.google.firebase.auth.AuthResult
+
 data class RegistrationUIState (
     var firstName : String = "",
     var lastName : String = "",

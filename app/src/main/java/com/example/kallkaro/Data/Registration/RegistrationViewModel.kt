@@ -1,15 +1,14 @@
 package com.example.kallkaro.Data.Registration
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuth.AuthStateListener
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,11 +30,21 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.AuthResult
+import io.grpc.internal.SharedResourceHolder.Resource
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.system.measureTimeMillis
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.GoogleAuthProvider
 
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
@@ -85,19 +94,12 @@ class RegistrationViewModel: ViewModel() {
                     regclick()
                 }
             }
-            is RegistrationUIEvents.LogoutButtonClicked -> {
-                logoutclick()
-            }
         }
     }
 
     private suspend fun regclick(){
         Log.d(TAG, "Inside Signup")
-        createUser(email = registrationUIState.value.email, password = registrationUIState.value.password)
-    }
-    private fun logoutclick(){
-        Log.d(TAG, "Inside Home")
-        logoutUser()
+        createUser(fname = registrationUIState.value.firstName, lname = registrationUIState.value.lastName, email = registrationUIState.value.email, password = registrationUIState.value.password)
     }
     private fun chkclick(){
         Log.d(TAG, "Inside checkbox")
@@ -140,7 +142,7 @@ class RegistrationViewModel: ViewModel() {
         Log.d(TAG, registrationUIState.value.toString())
     }
 
-    private suspend fun createUser(email: String, password: String) {
+    private suspend fun createUser(fname: String, lname: String, email: String, password: String) {
         signUpProgress.value = true
         val auth = FirebaseAuth.getInstance()
         val db = FirebaseFirestore.getInstance()
@@ -158,7 +160,7 @@ class RegistrationViewModel: ViewModel() {
                             Log.d(TAG, "before email verific await")
                             if (emailVerified.await() == true) {
                                 signUpProgress.value = false
-                                val user = hashMapOf("email" to email)
+                                val user = hashMapOf("firstname" to fname, "lastname" to lname, "email" to email)
                                 db.collection("users").document(email).set(user)
                                     .addOnSuccessListener {
                                         Log.d(TAG, "User added to Firestore")
@@ -200,28 +202,40 @@ class RegistrationViewModel: ViewModel() {
             }
     }
 
-    private fun logoutUser(){
-        signUpProgress.value = true
-        val auth = FirebaseAuth.getInstance()
-        val authlistener = AuthStateListener{
-            if(it.currentUser == null){
-                _toastMessage.value = "Logged Out Successfully"
-                Log.d(TAG,"Logged Out Successful")
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(1000)
-                    Router.navigateTo(Screen.LoginScreen)
-                    signUpProgress.value = false
+    fun handleGoogleSignIn(idToken: String) {
+        viewModelScope.launch {
+            try {
+                // Get a Firebase credential from the Google ID token
+                val credential = GoogleAuthProvider.getCredential(idToken, null)
+                val auth = FirebaseAuth.getInstance()
+
+                // Sign in with Firebase using the Firebase credential
+                auth.signInWithCredential(credential).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // Sign in success, update UI with the signed-in user's information
+                        val user = auth.currentUser
+                        updateUI(user)
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        updateUI(null)
+                    }
                 }
-            } else{
-                _toastMessage.value = "Log Out Failed"
-                Log.d(TAG, "Logout Fail")
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(1000)
-                    signUpProgress.value = false
-                }
+            } catch (e: Exception) {
+                // Handle exception
+                updateUI(null)
             }
         }
-        auth.addAuthStateListener(authlistener)
-        auth.signOut()
     }
+    private fun updateUI(user: FirebaseUser?) {
+//        val context = LocalContext.current
+        if (user != null) {
+            // User is signed in, navigate to HomeScreen
+            Router.navigateTo(Screen.HomeScreen)
+        } else {
+            // Sign-in failed, show a toast message
+//            Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "Failed google sign in")
+        }
+    }
+
 }

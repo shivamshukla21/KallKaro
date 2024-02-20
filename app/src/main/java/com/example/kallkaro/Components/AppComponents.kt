@@ -5,7 +5,9 @@ package com.example.kallkaro.Components
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
@@ -16,12 +18,18 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.DrawerDefaults
+import androidx.compose.material.DrawerValue
+import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.rememberDrawerState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -61,6 +69,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
 import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
@@ -260,6 +269,21 @@ fun LogoutButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
         Text(text = "Logout",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable
+fun DeleteButton (viewModel: HomeScreenViewModel, onButtonSelected: () -> Unit) {
+    Log.d(true.toString(),"value of delete status")
+    Button(onClick = { onButtonSelected.invoke() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(18.dp),
+        colors = ButtonDefaults.buttonColors(ng2)
+    ) {
+        Text(text = "Delete",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold)
     }
@@ -468,6 +492,46 @@ fun DividerComp () {
 fun CircularProgressIndicatorfun() {
     CircularProgressIndicator()
 }
+
+//@Composable
+//fun Scaff() {
+//    val scaffoldState = rememberScaffoldState()
+//    val drawerState = rememberDrawerState(DrawerValue.Closed)
+//
+//    Scaffold(
+//        modifier = Modifier.fillMaxSize(),
+//        scaffoldState = scaffoldState,
+//        drawerBackgroundColor = Color.White,
+//        drawerGesturesEnabled = true,
+//        drawerScrimColor = Color.Transparent,
+//        drawerContentColor = Color.Black,
+//        drawerContent = { DrawerContent() },
+//        drawerElevation = DrawerDefaults.Elevation,
+//        content = {
+//            // Your main content goes here
+//        }
+//    )
+//}
+//
+//@Composable
+//fun DrawerContent() {
+//    Column(modifier = Modifier.fillMaxSize()) {
+//        Text(text = "Item 1", modifier = Modifier.padding(16.dp))
+//        Text(text = "Item 2", modifier = Modifier.padding(16.dp))
+//        Text(text = "Item 3", modifier = Modifier.padding(16.dp))
+//    }
+//}
+//
+//@Composable
+//fun Prof() {
+//    Icon(
+//        imageVector = Icons.Filled.AccountCircle,
+//        contentDescription = "Profile",
+//        tint = Color.Blue,
+//        modifier = Modifier.size(40.dp)
+//    )
+//}
+
 
 //@Preview(showBackground = true)
 //@Composable

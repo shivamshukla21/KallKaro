@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
 import com.example.kallkaro.Data.Login.LoginViewModel
 import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
@@ -29,7 +30,7 @@ fun KallKaro() {
                     Login(viewModel = LoginViewModel())
                 }
                 is Screen.HomeScreen -> {
-                    Home(registrationViewModel = RegistrationViewModel())
+                    Home(homeScreenViewModel = HomeScreenViewModel())
                 }
             }
         }
