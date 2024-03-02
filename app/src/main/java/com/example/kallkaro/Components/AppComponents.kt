@@ -574,7 +574,6 @@ fun CircularProgressIndicatorfun() {
     CircularProgressIndicator()
 }
 
-
 //@Preview(showBackground = true)
 //@Composable
 //fun Clickabletextprev() {
