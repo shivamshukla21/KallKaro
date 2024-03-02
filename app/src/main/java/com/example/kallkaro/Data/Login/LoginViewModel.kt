@@ -16,6 +16,7 @@ import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import io.grpc.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -145,7 +146,6 @@ class LoginViewModel: ViewModel() {
                 loginProgress.value = false
             }
     }
-
 
     private fun resetPass(email: String) {
         loginProgress.value = true

@@ -1,5 +1,6 @@
 package com.example.kallkaro.Screens
 
+import android.telecom.Call
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,10 +19,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.kallkaro.Components.CircularProgressIndicatorfun
+import com.example.kallkaro.Components.ConnectButton
 import com.example.kallkaro.Components.DeleteButton
 import com.example.kallkaro.Components.HeadingTextComponent
 import com.example.kallkaro.Components.LogoutButton
 import com.example.kallkaro.Components.NormalTextComponent
+import com.example.kallkaro.Components.TextField
 import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
 import com.example.kallkaro.Data.HomeScreen.HomeUIEvents
 import com.example.kallkaro.Data.Registration.RegistrationUIEvents
@@ -38,14 +41,16 @@ fun Home(homeScreenViewModel: HomeScreenViewModel) {
             .padding(top = 40.dp)) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-//                    Scaff()
-                    NormalTextComponent(value = "\uD83E\uDD19 Buzz In \uD83D\uDE09")
-//                    Prof()
+                    NormalTextComponent(value = "Buzz In \uD83E\uDD19")
                 }
                 Spacer(modifier = Modifier.size(40.dp))
                 LogoutButton(viewModel = RegistrationViewModel(), onButtonSelected = {homeScreenViewModel.onEvent(HomeUIEvents.LogoutButtonClicked)})
                 Spacer(modifier = Modifier.size(20.dp))
                 DeleteButton(viewModel = HomeScreenViewModel(), onButtonSelected = {homeScreenViewModel.onEvent(HomeUIEvents.DeleteButtonClicked)})
+                Spacer(modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.size(60.dp))
+                TextField(labelvalue = "Username of Recipient", onTextSelected = {homeScreenViewModel.onEvent(HomeUIEvents.NameChanged(it))})
+                ConnectButton(viewModel = HomeScreenViewModel(), onButtonSelected = {homeScreenViewModel.onEvent(HomeUIEvents.ConnectButtonClicked)})
             }
     }
         if(homeScreenViewModel.homeProgress.value){

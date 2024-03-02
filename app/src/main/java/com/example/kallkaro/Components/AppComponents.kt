@@ -2,28 +2,37 @@
 
 package com.example.kallkaro.Components
 
+import android.content.ContentValues.TAG
+import android.nfc.Tag
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DrawerDefaults
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.TextButton
+import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Password
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
@@ -42,13 +51,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
@@ -70,6 +82,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
+import com.example.kallkaro.Data.HomeScreen.HomeUIEvents
 import com.example.kallkaro.Data.Registration.RegistrationViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
@@ -78,8 +91,13 @@ import com.example.kallkaro.ui.theme.bgcol
 import com.example.kallkaro.ui.theme.colorText
 import com.example.kallkaro.ui.theme.ng2
 import com.example.kallkaro.Data.Login.LoginViewModel
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.filled.MobileFriendly
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.WarningAmber
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.MainActivity
+import com.example.kallkaro.ui.theme.bg
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -95,6 +113,13 @@ fun NormalTextComponent (value: String) {
             fontStyle = FontStyle.Normal),
         color = colorText, textAlign = TextAlign.Center
     )
+}
+
+@Composable
+fun BtnText(value: String) {
+    Text(text = value,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.Bold)
 }
 
 @Composable
@@ -232,11 +257,7 @@ fun RegButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit, f
             .heightIn(18.dp),
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
-        Text(
-            text = "Register",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
-        )
+        BtnText(value = "Register")
     }
 }
 
@@ -251,9 +272,7 @@ fun LogButton (viewModel: LoginViewModel, onButtonSelected: () -> Unit, EmSt: Bo
             .heightIn(18.dp),
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
-        Text(text = "Login",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold)
+        BtnText(value = "Login")
     }
 }
 
@@ -268,24 +287,49 @@ fun LogoutButton (viewModel: RegistrationViewModel, onButtonSelected: () -> Unit
             .heightIn(18.dp),
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
-        Text(text = "Logout",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold)
+        BtnText(value = "Logout")
     }
 }
 
 @Composable
 fun DeleteButton (viewModel: HomeScreenViewModel, onButtonSelected: () -> Unit) {
     Log.d(true.toString(),"value of delete status")
+    val openAlertDialog = remember { mutableStateOf(false) }
+
+    Button(onClick = { openAlertDialog.value = true },
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(18.dp),
+        colors = ButtonDefaults.buttonColors(ng2)
+    ) {
+        BtnText(value = "Delete")
+    }
+    when {
+        openAlertDialog.value -> {
+            AlertDialogExample(
+                onDismissRequest = { openAlertDialog.value = false },
+                onConfirmation = {
+                    openAlertDialog.value = false
+                    onButtonSelected.invoke()
+                    Log.d("Alert", "Confirmed")
+                },
+                dialogTitle = "Are You Sure?",
+                dialogText = "Your Account and all the details will be Permanently Deleted",
+                icon = { Icon(Icons.Filled.Warning, contentDescription = "Warning Icon") }
+            )
+        }
+    }
+}
+
+@Composable
+fun ConnectButton(viewModel: HomeScreenViewModel, onButtonSelected: () -> Unit) {
     Button(onClick = { onButtonSelected.invoke() },
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(18.dp),
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
-        Text(text = "Delete",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold)
+        BtnText(value = "Connect")
     }
 }
 
@@ -310,6 +354,49 @@ fun CheckBoxComp (value: String, onCheckBoxTick: (Boolean) -> Unit) {
             Router.navigateTo(Screen.LoginScreen)
         })
     }
+}
+
+@Composable
+fun AlertDialogExample(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: @Composable () -> Unit,
+) {
+    AlertDialog(
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                icon()
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = dialogTitle, fontWeight = FontWeight.Bold)
+            }
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Delete", color = Color.Red, fontWeight = FontWeight.ExtraBold)
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss", fontWeight = FontWeight.Bold)
+            }
+        }
+    )
 }
 
 @Composable
@@ -344,12 +431,6 @@ fun ClickableTextComp1 (value: String, onTextSelected: (String)->Unit) {
         modifier = Modifier.offset(x=-10.dp),
         onClick = { offset ->
         annotatedString.getStringAnnotations(offset, offset)
-//            .firstOrNull()?.also { span ->
-//                if((span.item == term) || (span.item == privpol)){
-//                  onTextSelected(span.item)
-//                }
-//            }
-//            Router.navigateTo(Screen.RegisterScreen)
             .firstOrNull()?.let { stringAnnotation ->
                 uriHandler.openUri(stringAnnotation.item)
             }
@@ -492,46 +573,6 @@ fun DividerComp () {
 fun CircularProgressIndicatorfun() {
     CircularProgressIndicator()
 }
-
-//@Composable
-//fun Scaff() {
-//    val scaffoldState = rememberScaffoldState()
-//    val drawerState = rememberDrawerState(DrawerValue.Closed)
-//
-//    Scaffold(
-//        modifier = Modifier.fillMaxSize(),
-//        scaffoldState = scaffoldState,
-//        drawerBackgroundColor = Color.White,
-//        drawerGesturesEnabled = true,
-//        drawerScrimColor = Color.Transparent,
-//        drawerContentColor = Color.Black,
-//        drawerContent = { DrawerContent() },
-//        drawerElevation = DrawerDefaults.Elevation,
-//        content = {
-//            // Your main content goes here
-//        }
-//    )
-//}
-//
-//@Composable
-//fun DrawerContent() {
-//    Column(modifier = Modifier.fillMaxSize()) {
-//        Text(text = "Item 1", modifier = Modifier.padding(16.dp))
-//        Text(text = "Item 2", modifier = Modifier.padding(16.dp))
-//        Text(text = "Item 3", modifier = Modifier.padding(16.dp))
-//    }
-//}
-//
-//@Composable
-//fun Prof() {
-//    Icon(
-//        imageVector = Icons.Filled.AccountCircle,
-//        contentDescription = "Profile",
-//        tint = Color.Blue,
-//        modifier = Modifier.size(40.dp)
-//    )
-//}
-
 
 //@Preview(showBackground = true)
 //@Composable

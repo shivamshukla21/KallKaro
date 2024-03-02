@@ -26,10 +26,13 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.kallkaro.Data.Login.LoginViewModel
 import com.example.kallkaro.Data.Registration.RegistrationViewModel
+import com.example.kallkaro.Navigation.Router
+import com.example.kallkaro.Navigation.Router.updateScreenBasedOnAuthStatus
 import com.example.kallkaro.ui.theme.KallKaroTheme
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     private lateinit var regviewModel: RegistrationViewModel
@@ -49,6 +52,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        checkAuthenticationStatus()
         logviewModel.toastMessage.observe(this, Observer { toastMessage ->
             Log.d("LoginViewModel in main", "Thread: ${Thread.currentThread().name}")
             Log.d("MainActivity", "Toast Message: $toastMessage")
@@ -58,5 +62,11 @@ class MainActivity : ComponentActivity() {
 //        regviewModel._toastMessage.observe(this, Observer {
 //            Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
 //        })
+    }
+    private fun checkAuthenticationStatus() {
+        val auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        val isAuthenticated = currentUser != null && currentUser.isEmailVerified
+        updateScreenBasedOnAuthStatus(isAuthenticated)
     }
 }
