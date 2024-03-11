@@ -21,6 +21,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
@@ -29,8 +33,8 @@ class LoginViewModel: ViewModel() {
     private val TAG = LoginViewModel::class.simpleName
     var loginUIState = mutableStateOf(LoginUIState())
     var loginProgress = mutableStateOf(false)
-    private val _toastMessage = MutableLiveData<String>()
-    val toastMessage: LiveData<String> = _toastMessage
+    private val _toastMessage = MutableSharedFlow<String>()
+    val toastMessage = _toastMessage.asSharedFlow()
 
     fun onEvent(event: LoginUIEvents) {
         validatelogDatawithRules()
@@ -126,18 +130,17 @@ class LoginViewModel: ViewModel() {
                                 Log.w(TAG, "Error checking user details in Firestore", e)
                             }
                         Log.d("LoginViewModel", "Thread: ${Thread.currentThread().name}")
-                        _toastMessage.value = "kr be kuch"
-                        Handler(Looper.getMainLooper()).post(){
-                            _toastMessage.value = "Something happened"
-                            Router.navigateTo(Screen.HomeScreen)
+                        viewModelScope.launch {
+                            _toastMessage.emit("kr be kuch")
                         }
+                        Router.navigateTo(Screen.HomeScreen)
                         Log.d(true.toString(), "Inside Home after login")
                     } else {
                         auth.signOut()
                         Log.d(TAG, "Email not verified")
                     }
                     loginProgress.value = false
-                    Log.d(TAG, "{${toastMessage.value}}")
+                    Log.d(TAG, "{${toastMessage}}")
                 }
             }
             .addOnFailureListener {
@@ -174,4 +177,3 @@ class LoginViewModel: ViewModel() {
         }
     }
 }
-

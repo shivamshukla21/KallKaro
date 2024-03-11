@@ -27,7 +27,7 @@ fun KallKaro() {
                     Register(registrationViewModel = RegistrationViewModel())
                 }
                 is Screen.LoginScreen -> {
-                    Login(viewModel = LoginViewModel())
+                    Login(viewModel = LoginViewModel(), regvm = RegistrationViewModel())
                 }
                 is Screen.HomeScreen -> {
                     Home(homeScreenViewModel = HomeScreenViewModel())

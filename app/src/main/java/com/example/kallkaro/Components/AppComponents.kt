@@ -2,10 +2,14 @@
 
 package com.example.kallkaro.Components
 
+import android.app.Activity
 import android.content.ContentValues.TAG
 import android.nfc.Tag
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -95,9 +99,17 @@ import androidx.compose.material.TextField
 import androidx.compose.material.icons.filled.MobileFriendly
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.MainActivity
+import com.example.kallkaro.R
 import com.example.kallkaro.ui.theme.bg
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -330,6 +342,35 @@ fun ConnectButton(viewModel: HomeScreenViewModel, onButtonSelected: () -> Unit) 
         colors = ButtonDefaults.buttonColors(ng2)
     ) {
         BtnText(value = "Connect")
+    }
+}
+
+@Composable
+fun SignInButton(activity: Activity, viewModel: RegistrationViewModel) {
+    val googleSignInClient: GoogleSignInClient = GoogleSignIn.getClient(
+        activity,
+        GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(activity.getString(R.string.your_web_client_id))
+            .requestEmail()
+            .build()
+    )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = { viewModel.signInWithGoogle(activity) },
+            modifier = Modifier
+                .heightIn(18.dp),
+            colors = ButtonDefaults.buttonColors(bgcol)
+        ) {
+            Image(painter = painterResource(id = R.drawable.google), contentDescription = "Google", modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.size(10.dp))
+            Text("Continue with Google", color = Color.DarkGray)
+        }
     }
 }
 

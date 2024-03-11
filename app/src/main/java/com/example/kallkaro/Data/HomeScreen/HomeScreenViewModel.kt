@@ -1,13 +1,20 @@
 package com.example.kallkaro.Data.HomeScreen
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.kallkaro.Data.HomeScreen.HomeUIEvents
-import com.example.kallkaro.Data.HomeScreen.HomeUIState
-import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
 import com.example.kallkaro.Navigation.Router
 import com.example.kallkaro.Navigation.Screen
+import com.example.kallkaro.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.CoroutineScope
@@ -117,6 +124,4 @@ class HomeScreenViewModel: ViewModel() {
                 }
         }
     }
-
-
 }

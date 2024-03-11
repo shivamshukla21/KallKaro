@@ -1,5 +1,7 @@
 package com.example.kallkaro.Data.Registration
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
@@ -43,16 +45,28 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.system.measureTimeMillis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.kallkaro.Data.HomeScreen.HomeScreenViewModel
+import com.example.kallkaro.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlin.random.Random
 
 class RegistrationViewModel: ViewModel() {
     private val TAG = RegistrationViewModel::class.simpleName
     var registrationUIState = mutableStateOf(RegistrationUIState())
     var allValid = mutableStateOf(false)
     var signUpProgress = mutableStateOf(false)
-    private val toastMessage = MutableLiveData<String>()
-    val _toastMessage = toastMessage
+    private val _toastMessage = MutableSharedFlow<String>()
+    val toastMessage = _toastMessage.asSharedFlow()
+    companion object {
+        private const val RC_SIGN_IN = 9001
+    }
 
     fun onEvent(event: RegistrationUIEvents){
         validateDatawithRules()
@@ -202,40 +216,142 @@ class RegistrationViewModel: ViewModel() {
             }
     }
 
-    fun handleGoogleSignIn(idToken: String) {
-        viewModelScope.launch {
-            try {
-                // Get a Firebase credential from the Google ID token
-                val credential = GoogleAuthProvider.getCredential(idToken, null)
-                val auth = FirebaseAuth.getInstance()
+    fun signInWithGoogle(activity: Activity) {
+        val googleSignInClient = GoogleSignIn.getClient(
+            activity,
+            GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(activity.getString(R.string.your_web_client_id))
+                .requestEmail()
+                .build()
+        )
+        // Revoke access before starting the sign-in process
+        googleSignInClient.revokeAccess().addOnCompleteListener {
+            val signInIntent = googleSignInClient.signInIntent
+            activity.startActivityForResult(signInIntent, RC_SIGN_IN)
+        }
+    }
 
-                // Sign in with Firebase using the Firebase credential
-                auth.signInWithCredential(credential).addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        // Sign in success, update UI with the signed-in user's information
-                        val user = auth.currentUser
-                        updateUI(user)
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        updateUI(null)
+    fun handleSignInResult(data: Intent?) {
+        val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            val idToken = account?.idToken
+            Log.d("GoogleSignIn", "Signed in successfully. ID Token: $idToken")
+            createUserFromGoogleSignIn(account)
+        } catch (e: ApiException) {
+            Log.e("GoogleSignIn", "Sign in failed with code: ${e.statusCode}")
+        }
+    }
+
+    private fun createUserFromGoogleSignIn(account: GoogleSignInAccount?) {
+        account?.let { signInAccount ->
+            val fname = signInAccount.givenName
+            val lname = signInAccount.familyName
+            val email = signInAccount.email
+
+            if (!email.isNullOrEmpty() && fname != null && lname != null) {
+                val auth = FirebaseAuth.getInstance()
+                val db = FirebaseFirestore.getInstance()
+
+                db.collection("users").document(email).get()
+                    .addOnSuccessListener { document ->
+                        if (document.exists()) {
+                            // User already exists, skip creation
+                            Log.d("GoogleSignIn", "User already exists in Firestore")
+                            Router.navigateTo(Screen.HomeScreen)
+                        } else {
+                            // User doesn't exist, proceed with creation
+                            val dummyPassword = generateStrongPassword(email, length = 12)
+                            auth.createUserWithEmailAndPassword(email, dummyPassword)
+                                .addOnCompleteListener { authTask ->
+                                    if (authTask.isSuccessful) {
+                                        val firebaseUser = auth.currentUser
+                                        val user = hashMapOf(
+                                            "firstName" to fname,
+                                            "lastName" to lname,
+                                            "email" to email
+                                        )
+                                        db.collection("users").document(email)
+                                            .set(user)
+                                            .addOnSuccessListener {
+                                                // Handle successful user creation and Firestore storage
+                                                Log.d("GoogleSignIn", "User added to Firestore")
+                                                Router.navigateTo(Screen.HomeScreen)
+                                            }
+                                            .addOnFailureListener { firestoreException ->
+                                                // Handle failure to store user details in Firestore
+                                                Log.e("GoogleSignIn", "Error adding user to Firestore", firestoreException)
+                                            }
+                                    } else {
+                                        // Handle failure to create user in Firebase Authentication
+                                        Log.e("GoogleSignIn", "User cannot be created in Firebase Authentication")
+                                    }
+                                }
+                                .addOnFailureListener { authException ->
+                                    // Handle failure to create user in Firebase Authentication
+                                    Log.e("GoogleSignIn", "Error creating user in Firebase Authentication", authException)
+                                }
+                        }
                     }
-                }
-            } catch (e: Exception) {
-                // Handle exception
-                updateUI(null)
+                    .addOnFailureListener { firestoreException ->
+                        // Handle failure to check user existence in Firestore
+                        Log.e("GoogleSignIn", "Error checking user existence in Firestore", firestoreException)
+                    }
+            } else {
+                // Handle failure to extract valid user details from GoogleSignInAccount
+                Log.e("GoogleSignIn", "Failed to extract valid user details from GoogleSignInAccount")
             }
         }
     }
-    private fun updateUI(user: FirebaseUser?) {
-//        val context = LocalContext.current
-        if (user != null) {
-            // User is signed in, navigate to HomeScreen
-            Router.navigateTo(Screen.HomeScreen)
-        } else {
-            // Sign-in failed, show a toast message
-//            Toast.makeText(context, "Login failed", Toast.LENGTH_SHORT).show()
-            Log.d(TAG, "Failed google sign in")
+
+
+    private fun generateStrongPassword(email: String, length: Int = 12): String {
+        // Define the character sets for different types of characters
+        val uppercaseLetters = ('A'..'Z').joinToString("")
+        val lowercaseLetters = ('a'..'z').joinToString("")
+        val digits = ('0'..'9').joinToString("")
+        val specialCharacters = listOf('!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', '}', '[', ']', '|', '\\', ':', ';', '<', '>', ',', '.', '?', '/').joinToString("")
+        // Combine all character sets
+        val allCharacters = uppercaseLetters + lowercaseLetters + digits + specialCharacters
+        // Generate the password
+        var password = ""
+        repeat(length) {
+            password += allCharacters.random()
         }
+        // Append the first four characters of the email to the password
+        val emailPrefix = email.take(4)
+        password += emailPrefix
+        return password
     }
 
+    fun getRcSignIn(): Int {
+        return RC_SIGN_IN
+    }
 }
+
+
+
+//fun handleGoogleSignIn(idToken: String) {
+//    viewModelScope.launch {
+//        try {
+//            // Get a Firebase credential from the Google ID token
+//            val credential = GoogleAuthProvider.getCredential(idToken, null)
+//            val auth = FirebaseAuth.getInstance()
+//
+//            // Sign in with Firebase using the Firebase credential
+//            auth.signInWithCredential(credential).addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    // Sign in success, update UI with the signed-in user's information
+//                    val user = auth.currentUser
+//                    updateUI(user)
+//                } else {
+//                    // If sign in fails, display a message to the user.
+//                    updateUI(null)
+//                }
+//            }
+//        } catch (e: Exception) {
+//            // Handle exception
+//            updateUI(null)
+//        }
+//    }
+//}

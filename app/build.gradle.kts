@@ -86,6 +86,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.6.0")
     implementation("androidx.drawerlayout:drawerlayout:1.1.1")
     implementation("com.google.android.gms:play-services-identity:18.0.0")
+    implementation("com.google.android.gms:play-services-auth:21.0.0")
 
     //implementation("androidx.compose.material3:material-icons-extended:1.0.0-alpha06")
 }
