@@ -261,10 +261,11 @@ class RegistrationViewModel: ViewModel() {
                             Router.navigateTo(Screen.HomeScreen)
                         } else {
                             // User doesn't exist, proceed with creation
-                            val dummyPassword = generateStrongPassword(email, length = 12)
-                            auth.createUserWithEmailAndPassword(email, dummyPassword)
-                                .addOnCompleteListener { authTask ->
-                                    if (authTask.isSuccessful) {
+                            val credential = GoogleAuthProvider.getCredential(signInAccount.idToken, null)
+                            auth.signInWithCredential(credential)
+                                .addOnCompleteListener { signInTask ->
+                                    if (signInTask.isSuccessful) {
+                                        // User signed in successfully
                                         val firebaseUser = auth.currentUser
                                         val user = hashMapOf(
                                             "firstName" to fname,
@@ -283,13 +284,9 @@ class RegistrationViewModel: ViewModel() {
                                                 Log.e("GoogleSignIn", "Error adding user to Firestore", firestoreException)
                                             }
                                     } else {
-                                        // Handle failure to create user in Firebase Authentication
-                                        Log.e("GoogleSignIn", "User cannot be created in Firebase Authentication")
+                                        // Handle sign-in failure
+                                        Log.e("GoogleSignIn", "Sign-in with credential failed", signInTask.exception)
                                     }
-                                }
-                                .addOnFailureListener { authException ->
-                                    // Handle failure to create user in Firebase Authentication
-                                    Log.e("GoogleSignIn", "Error creating user in Firebase Authentication", authException)
                                 }
                         }
                     }
