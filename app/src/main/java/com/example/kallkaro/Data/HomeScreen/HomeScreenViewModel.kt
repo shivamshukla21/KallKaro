@@ -17,6 +17,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -96,32 +98,46 @@ class HomeScreenViewModel: ViewModel() {
         val user = FirebaseAuth.getInstance().currentUser
         val db = FirebaseFirestore.getInstance()
         homeProgress.value = true
+        Log.d("Dekho", "${user?.email}")
 
         user?.let { firebaseUser ->
-            // Delete user data from Firestore
-            db.collection("users").document(firebaseUser.email.toString())
-                .delete()
-                .addOnSuccessListener {
-                    Log.d(TAG,"Inside after data delete")
-                    // User data deleted from Firestore, now delete the auth account
-                    firebaseUser.delete().addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            CoroutineScope(Dispatchers.Main).launch {
-                                delay(1000)
+            // Get the list of providers linked to the user's account
+            val providers = firebaseUser.providerData.map { it.providerId }
+
+            // Check if the user is logged in with email or Google
+            val signInMethod = providers.find { it == EmailAuthProvider.PROVIDER_ID || it == GoogleAuthProvider.PROVIDER_ID }
+
+            signInMethod?.let {
+                // User is signed in with email or Google, proceed with deletion
+                // Delete user data from Firestore
+                db.collection("users").document(firebaseUser.email.toString())
+                    .delete()
+                    .addOnSuccessListener {
+                        Log.d(TAG, "User data deleted from Firestore")
+                        // Delete the auth account
+                        firebaseUser.delete().addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    delay(1000)
+                                    homeProgress.value = false
+                                    Router.navigateTo(Screen.LoginScreen)
+                                }
+                                Log.d(TAG, "User account deleted successfully.")
+                            } else {
                                 homeProgress.value = false
-                                Router.navigateTo(Screen.LoginScreen)
+                                Log.d(TAG, "Failed to delete user account.")
                             }
-                            Log.d(TAG, "User account and data deleted.")
-                        } else {
-                            homeProgress.value = false
-                            Log.d(TAG,"Failed to delete user account after deleting data.")
                         }
                     }
-                }
-                .addOnFailureListener { e ->
-                    Log.d(TAG, "Error deleting user data: $e")
-                    homeProgress.value = false
-                }
+                    .addOnFailureListener { e ->
+                        Log.d(TAG, "Error deleting user data: $e")
+                        homeProgress.value = false
+                    }
+            } ?: run {
+                // User is signed in with a provider other than email or Google
+                Log.d(TAG, "User is signed in with providers: $providers. Cannot delete account.")
+                homeProgress.value = false
+            }
         }
     }
 }

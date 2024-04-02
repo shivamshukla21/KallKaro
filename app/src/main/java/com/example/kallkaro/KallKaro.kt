@@ -1,5 +1,6 @@
 package com.example.kallkaro
 
+import JoinActivityScreen
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
@@ -31,6 +32,9 @@ fun KallKaro() {
                 }
                 is Screen.HomeScreen -> {
                     Home(homeScreenViewModel = HomeScreenViewModel())
+                }
+                is Screen.JoinScreen -> {
+                    JoinActivityScreen(onCreateMeetingClicked = { /*TODO*/ }, onJoinMeetingClicked = { /*TODO*/ })
                 }
             }
         }
