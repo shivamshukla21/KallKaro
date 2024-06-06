@@ -54,7 +54,7 @@ fun Login (viewModel: LoginViewModel, regvm: RegistrationViewModel) {
             Column(modifier = Modifier.fillMaxSize()){
                 NormalTextComponent(value = stringResource(id = R.string.welcome))
                 HeadingTextComponent(value = stringResource(id = R.string.sign))
-                Spacer(modifier = Modifier.size(100.dp))
+                Spacer(modifier = Modifier.size(60.dp))
                 KallKaroComp()
                 Spacer(modifier = Modifier.size(50.dp))
                 EmTextField(labelvalue = stringResource(id = R.string.eml), onTextSelected = { viewModel.onEvent(LoginUIEvents.EmailChanged(it)) })

@@ -101,11 +101,13 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kallkaro.Data.Rules.Validator
 import com.example.kallkaro.MainActivity
 import com.example.kallkaro.R
+import com.example.kallkaro.Screens.Login
 import com.example.kallkaro.ui.theme.bg
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -615,8 +617,3 @@ fun CircularProgressIndicatorfun() {
     CircularProgressIndicator()
 }
 
-//@Preview(showBackground = true)
-//@Composable
-//fun Clickabletextprev() {
-//
-//}

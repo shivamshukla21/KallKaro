@@ -34,7 +34,7 @@ fun KallKaro() {
                     Home(homeScreenViewModel = HomeScreenViewModel())
                 }
                 is Screen.JoinScreen -> {
-                    JoinActivityScreen(onCreateMeetingClicked = { /*TODO*/ }, onJoinMeetingClicked = { /*TODO*/ })
+                    JoinActivityScreen(viewModel = RegistrationViewModel(), homeScreenViewModel = HomeScreenViewModel(), onCreateMeetingClicked = { /*TODO*/ }, onJoinMeetingClicked = { /*TODO*/ })
                 }
             }
         }

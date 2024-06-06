@@ -16,16 +16,16 @@ sealed class Screen() {
 }
 
 object Router{
-    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.JoinScreen)
+    var currentScreen: MutableState<Screen> = mutableStateOf(Screen.LoginScreen)
 
     fun navigateTo(destination: Screen){
         currentScreen.value = destination
     }
     fun updateScreenBasedOnAuthStatus(isAuthenticated: Boolean) {
         currentScreen.value = if (isAuthenticated) {
-            Screen.JoinScreen
+            Screen.HomeScreen
         } else {
-            Screen.JoinScreen
+            Screen.LoginScreen
         }
     }
 }

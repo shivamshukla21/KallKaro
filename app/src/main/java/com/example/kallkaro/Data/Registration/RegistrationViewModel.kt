@@ -178,7 +178,7 @@ class RegistrationViewModel: ViewModel() {
                                 db.collection("users").document(email).set(user)
                                     .addOnSuccessListener {
                                         Log.d(TAG, "User added to Firestore")
-                                        Router.navigateTo(Screen.JoinScreen)
+                                        Router.navigateTo(Screen.HomeScreen)
                                         Log.d(TAG, "Inside Home after registration")
                                     }
                                     .addOnFailureListener { e ->

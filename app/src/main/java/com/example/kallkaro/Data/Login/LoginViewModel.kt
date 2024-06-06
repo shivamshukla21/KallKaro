@@ -133,7 +133,7 @@ class LoginViewModel: ViewModel() {
                         viewModelScope.launch {
                             _toastMessage.emit("kr be kuch")
                         }
-                        Router.navigateTo(Screen.JoinScreen)
+                        Router.navigateTo(Screen.HomeScreen)
                         Log.d(true.toString(), "Inside Home after login")
                     } else {
                         auth.signOut()
